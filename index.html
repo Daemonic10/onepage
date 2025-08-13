@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Budinda One Page - Muhammad Fadlan</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        accent: '#f97316',
+                        dark: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --header-height: 80px;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .card-scroll-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .card-scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .nav-scroll {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-padding {
+            padding-top: calc(var(--header-height) + 40px);
+            padding-bottom: 80px;
+        }
+        
+        .map-container {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contact-card {
+            transition: all 0.3s ease;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .skill-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .skill-level {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+        }
+        
+        .profile-photo-container {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            border: 5px solid white;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transform-style: preserve-3d;
+            perspective: 100px;
+            transition: transform 0.3s ease;
+        }
+        
+        .profile-photo {
+            display: block;
+            width: 380px;
+            height: 540px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .profile-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .photo-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(59, 130, 246, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .photo-overlay-text {
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-photo-container:hover .photo-overlay {
+            opacity: 1;
+        }
+        
+        .profile-photo-container:hover .photo-overlay-text {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .photo-click-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px;
+            border-radius: 20px;
+            opacity: 0.8;
+            transform: translateY(10px);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 0.9; }
+            100% { opacity: 0.6; }
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full overflow-x-hidden">
+
+    <header id="navbar" class="fixed w-full flex flex-row justify-between p-4 z-50 transition-all duration-300">
+      <div class="flex items-center">
+        <img
+          class="w-12 h-12 object-contain"
+          src="src/logo-smkn-6.png"
+          alt="Logo RPL"
+        />
+      </div>
+
+      <nav class="hidden md:flex items-center gap-8">
+        <a
+          href="#home"
+          class="text-gray-700 hover:text-primary font-medium transition relative group"
+        >
+          Home
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a
+          href="#friends"
+          class="text-gray-700 hover:text-primary font-medium transition relative group"
+        >
+          My Friends
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a
+          href="#about"
+          class="text-gray-700 hover:text-primary font-medium transition relative group"
+        >
+          About Me
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+        <a
+          href="#contact"
+          class="text-gray-700 hover:text-primary font-medium transition relative group"
+        >
+          Contact
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+        </a>
+      </nav>
+
+      <div class="md:hidden flex items-center">
+        <button id="menu-btn" class="relative z-50">
+          <div class="w-8 h-0.5 bg-gray-800 mb-1.5 transition-transform duration-300" id="bar1"></div>
+          <div class="w-6 h-0.5 bg-gray-800 mb-1.5 transition-all duration-300" id="bar2"></div>
+          <div class="w-4 h-0.5 bg-gray-800 transition-all duration-300" id="bar3"></div>
+        </button>
+      </div>
+
+      <div>
+        <img
+          class="w-12 h-12 object-contain p-1"
+          src="src/rpl-300x300 (1).png"
+          alt="Logo Portofolio"
+        />
+      </div>
+    </header>
+
+    <div id="mobile-menu" class="fixed inset-0 bg-white z-40 flex flex-col items-center justify-center space-y-8 transition-all duration-500 transform translate-y-full">
+      <a href="#home" class="text-2xl font-medium text-dark hover:text-primary transition">Home</a>
+      <a href="#friends" class="text-2xl font-medium text-dark hover:text-primary transition">My Friends</a>
+      <a href="#about" class="text-2xl font-medium text-dark hover:text-primary transition">About Me</a>
+      <a href="#contact" class="text-2xl font-medium text-dark hover:text-primary transition">Contact</a>
+    </div>
+
+    <section id="home" class="pt-32 pb-20 flex flex-col md:flex-row items-center justify-between px-6 md:px-12 lg:px-24 gap-12">
+
+      <div class="flex-1 z-10 space-y-6 md:space-y-8 order-2 md:order-1">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+          <span class="gradient-text">Muhammad Fadlan</span><br />
+          <span class="text-dark">"(Daemon)"</span>
+        </h1>
+
+        <p class="text-lg md:text-xl text-gray-600 max-w-2xl">
+          Siswa SMKN 6 Tangerang Selatan jurusan Rekayasa Perangkat Lunak. 
+          Saya mengembangkan solusi web kreatif dan inovatif.
+        </p>
+
+        <div class="flex flex-wrap gap-4">
+          <a href="#about" class="px-8 py-3 bg-primary text-white rounded-full font-medium hover:bg-blue-700 transition">
+            About Me
+          </a>
+          <a href="#contact"
+            class="px-8 py-3 border border-gray-300 rounded-full font-medium hover:bg-gray-100 transition"
+          >
+            Contact Me
+          </a>
+        </div>
+
+        <div class="pt-4 flex flex-wrap gap-4 text-gray-500">
+          <span class="flex items-center text-sm font-medium">
+            <i class="fas fa-school mr-2"></i> SMKN 6 Tangerang Selatan
+          </span>
+          <span class="flex items-center text-sm font-medium">
+            <i class="fas fa-laptop-code mr-2"></i> Rekayasa Perangkat Lunak
+          </span>
+          <span class="flex items-center text-sm font-medium">
+            <i class="fas fa-graduation-cap mr-2"></i> Tahun Ajaran 2025/2026
+          </span>
+        </div>
+      </div>
+
+      <div class="flex-1 flex justify-center md:justify-end order-1 md:order-2">
+        <div class="profile-photo-container" id="profile-photo">
+          <img
+            src="src/fadlan.jpg"
+            alt="Profile Photo"
+            class="profile-photo"
+            onclick="playVineBoomSound()"
+          />
+          <div class="profile-frame"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="friends" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Teman Sekelas RPL2</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Kenali lebih dekat teman-teman kelas Rekayasa Perangkat Lunak 2</p>
+          <div class="w-20 h-1 bg-primary rounded-full mx-auto mt-6"></div>
+        </div>
+
+        <div class="card-scroll-container flex overflow-x-auto pb-6 px-4 md:px-0">
+<div class="card-hover min-w-[300px] max-w-[320px] bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0">
+  <div class="relative">
+  
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 w-full h-56 flex items-center justify-center overflow-hidden relative">
+
+      <img src="src/naufal.jpg" alt="Naufal Alfiha Maulana" class="w-full h-full object-cover">
+
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+    </div>
+    
+    <div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+      <i class="fas fa-gamepad mr-1"></i> Pro Player MCGOGO
+    </div>
+  </div>
+
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-xl text-gray-800">Naufal Alfiha Maulana</h3>
+      <span class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full">RPL2</span>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">Seorang teman sekelas yang selalu semangat dalam belajar dan bercita-cita menjadi KOPASUS. Memiliki skill gaming yang luar biasa khususnya di MCGOGO.</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-blue-50 text-primary text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-medal mr-1"></i> #ProplayerMCGOGO
+      </span>
+      <span class="bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-user-ninja mr-1"></i> #Kopasus
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="card-hover min-w-[300px] max-w-[320px] bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0">
+  <div class="relative">
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 w-full h-56 flex items-center justify-center overflow-hidden relative">
+      <img src="src/haidar.jpg" alt="Naufal Alfiha Maulana" class="w-full h-full object-cover">
+
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      
+    </div>
+    
+    <div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+      <i class="fas fa-volume-high mr-1"></i> Yapping
+    </div>
+  </div>
+  
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-xl text-gray-800">Haidar Raif Prianaqi</h3>
+      <span class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full">RPL2</span>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">Orang Jawa yang menjadi Paskibra yang sangat hebat dan keren. Komitmennya tinggi dan pasti tidak akan keluar dari Paskibra. Sangat disiplin dan bertanggung jawab.</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-blue-50 text-primary text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-medal mr-1"></i> #Paskibra
+      </span>
+      <span class="bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-user-ninja mr-1"></i> #Jawa
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="card-hover min-w-[300px] max-w-[320px] bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0">
+  <div class="relative">
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 w-full h-56 flex items-center justify-center overflow-hidden relative">
+      <img src="src/DENSI.jpg" alt="Naufal Alfiha Maulana" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      
+    </div>
+    
+  
+    <div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+      <i class="fas fa-user mr-1"></i> Guru Produktif  
+    </div>
+  </div>
+  
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-xl text-gray-800">Dennis Otniel Rorimpandey</h3>
+      <span class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full">RPL2</span>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">Niel niel niel otniel, dia adalah alomani yang sangat aneh yang ada dikelas ini, tetapi dia sangat membantu saya khususnya dalam belajar pemrograman</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-blue-50 text-primary text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-medal mr-1"></i> #KingCODING
+      </span>
+      <span class="bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-user-ninja mr-1"></i> #Densi
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="card-hover min-w-[300px] max-w-[320px] bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0">
+  <div class="relative">
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 w-full h-56 flex items-center justify-center overflow-hidden relative">
+      <img src="src/fachri.jpg" alt="Naufal Alfiha Maulana" class="w-full h-full object-cover">
+      
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      
+    </div>
+    
+    <div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+      <i class="fas fa-crown mr-1"></i> King Kripto
+    </div>
+  </div>
+  
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-xl text-gray-800">Muhammad Fachri Solihin</h3>
+      <span class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full">RPL2</span>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">Jago dalam bermain EPEP dan bercita-cita menjadi Raja Kripto. Memiliki pengetahuan luas tentang investasi digital dan selalu update dengan tren cryptocurrency terbaru.</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-blue-50 text-primary text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-medal mr-1"></i> #Fachrijamsot
+      </span>
+      <span class="bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-user-ninja mr-1"></i> #Alirezafirouzi
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="card-hover min-w-[300px] max-w-[320px] bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0">
+  <div class="relative">
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 w-full h-56 flex items-center justify-center overflow-hidden relative">
+
+      <img src="src/giri.jpg" alt="Naufal Alfiha Maulana" class="w-full h-full object-cover">
+      
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      
+    </div>
+
+    <div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+      <i class="fas fa-chess-pawn mr-1"></i> Pencatur
+    </div>
+  </div>
+  
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-xl text-gray-800">Ahmad Giri Saptanu</h3>
+      <span class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full">RPL2</span>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">Dia adalah pencatur kelas. Aeiap hari saya diajakin catur padahal, saya menang terus</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-blue-50 text-primary text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-medal mr-1"></i> #MaknyusCarlsen
+      </span>
+      <span class="bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-user-ninja mr-1"></i> #Sisilia
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="card-hover min-w-[300px] max-w-[320px] bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0">
+  <div class="relative">
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 w-full h-56 flex items-center justify-center overflow-hidden relative">
+      <img src="src/geo.jpg" alt="Naufal Alfiha Maulana" class="w-full h-full object-cover">
+      
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      
+    </div>
+    
+    <div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+      <i class="fas fa-crown mr-1"></i> King EXP
+    </div>
+  </div>
+  
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-xl text-gray-800">Geovany Wilheim Lerick</h3>
+      <span class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full">RPL2</span>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">Dia adalah salah satu pemain naturalisasi yang ada di kelas saya, dan dia juga mantan penjajah</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-blue-50 text-primary text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-medal mr-1"></i> #EXP
+      </span>
+      <span class="bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-user-ninja mr-1"></i> #Naturalisasi
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="card-hover min-w-[300px] max-w-[320px] bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0">
+  <div class="relative">
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 w-full h-56 flex items-center justify-center overflow-hidden relative">
+      <img src="src/rafi.jpg" alt="Naufal Alfiha Maulana" class="w-full h-full object-cover">
+      
+
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      
+    </div>
+    
+    <div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+      <i class="fas fa-guitar mr-1"></i> Pengitar
+    </div>
+  </div>
+  
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-xl text-gray-800">Rafi Aditya</h3>
+      <span class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full">RPL2</span>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">Dia adalah gitaris kelas, yang jago??? gatau sih, menurutku biasa aja</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-blue-50 text-primary text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-medal mr-1"></i> #Ipong
+      </span>
+      <span class="bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-user-ninja mr-1"></i> #Tiktoker
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="card-hover min-w-[300px] max-w-[320px] bg-white rounded-2xl overflow-hidden mr-6 flex-shrink-0">
+  <div class="relative">
+    <div class="bg-gradient-to-r from-blue-400 to-blue-600 w-full h-56 flex items-center justify-center overflow-hidden relative">
+
+      <img src="src/lucky.jpg" alt="lucky" class="w-full h-full object-cover">
+      
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+      
+    </div>
+    
+    <div class="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+      <i class="fas fa-robot mr-1"></i> NPC
+    </div>
+  </div>
+  
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-xl text-gray-800">Lucky Surya Saputra</h3>
+      <span class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full">RPL2</span>
+    </div>
+    <p class="text-gray-600 text-sm mb-4">Dia biasa-biasa aja, aku gatau mau nulis apa tentang dia, tapi dia juga teman aku</p>
+    <div class="flex flex-wrap gap-2">
+      <span class="bg-blue-50 text-primary text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-ghost mr-1"></i> #Null
+      </span>
+      <span class="bg-green-50 text-green-700 text-xs px-3 py-1 rounded-full flex items-center">
+        <i class="fas fa-robot mr-1"></i> #NPC
+      </span>
+    </div>
+  </div>
+</div>
+
+        <div class="mt-8 text-gray-600 text-sm max-w-2xl mx-auto">
+          <div class="flex justify-center">
+            <div class="animate-bounce w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+              <i class="fas fa-arrow-right text-white"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="about" class="py-20">
+      <div class="container mx-auto px-12 max-w-5xl ">
+        <div class="text-center mb-16">
+          <h2 class="section-title text-4xl font-bold text-gray-800">
+            About Me
+          </h2>
+          <p class="text-gray-600 max-w-2xl mx-auto mt-4">
+            Profil singkat tentang saya sebagai pelajar
+          </p>
+          <div class="w-20 h-1 bg-primary rounded-full mx-auto mt-6"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div class="flex">
+            <div
+              class="w-1/3 bg-black p-10 flex items-center justify-center"
+            >
+              <div class="text-center text-white">
+                <div
+                  class="bg-white bg-opacity-20 rounded-full p-4 inline-block"
+                >
+                  <i class="fas fa-user-graduate text-5xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mt-6">Muhammad Fadlan</h3>`
+                <p class="mt-2">Siswa Kelas 11</p>
+              </div>
+            </div>
+
+            <div class="w-2/3 p-10">
+              <h3 class="text-2xl font-bold text-white mb-6">
+                Profil Pelajar
+              </h3>
+
+              <div class="space-y-6">
+                <p class="text-gray-600">
+                  Saya Muhammad Fadlan, seorang pelajar di SMKN 6 Tangerang
+                  Selatan jurusan Rekayasa Perangkat Lunak. Saat ini saya duduk
+                  di kelas 11 RPL 2 dan sedang aktif mempelajari berbagai aspek
+                  pengembangan perangkat lunak.
+                </p>
+
+                <p class="text-gray-600">
+                  Sebagai siswa, saya memiliki minat yang besar dalam dunia
+                  teknologi, khususnya pengembangan web. Saya senang mempelajari
+                  hal-hal baru dan berusaha mengembangkan keterampilan saya
+                  setiap hari.
+                </p>
+
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                  <div class="flex items-center">
+                    <div
+                      class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"
+                    >
+                      <i class="fas fa-school text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="font-bold text-gray-800">
+                        SMKN 6 Tangerang Selatan
+                      </h4>
+                      <p class="text-gray-600 text-sm">Sekolah</p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center">
+                    <div
+                      class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center"
+                    >
+                      <i class="fas fa-laptop-code text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="font-bold text-gray-800">
+                        Rekayasa Perangkat Lunak
+                      </h4>
+                      <p class="text-gray-600 text-sm">Jurusan</p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center">
+                    <div
+                      class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center"
+                    >
+                      <i class="fas fa-users text-orange-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="font-bold text-gray-800">RPL 2</h4>
+                      <p class="text-gray-600 text-sm">Kelas</p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center">
+                    <div
+                      class="w-12 h-12 bg-green-1ss00 rounded-lg flex items-center justify-center"
+                    >
+                      <i class="fas fa-calendar-alt text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="font-bold text-gray-800">2025/2026</h4>
+                      <p class="text-gray-600 text-sm">Tahun Ajaran</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="py-16 bg-gray-50">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Hubungi Saya</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">Silakan hubungi saya melalui formulir atau informasi kontak di bawah</p>
+          <div class="w-20 h-1 bg-primary rounded-full mx-auto mt-6"></div>
+        </div>
+        
+        <div class="max-w-6xl mx-auto">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div class="map-container">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d991.5191867291309!2d106.6793115!3d-6.253618899999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69fa528a001c1d%3A0x9dea99e03608678a!2sJl.%20H.%20Garie%20Blok%20Masjid%201%20No.74%2C%20Pd.%20Kacang%20Bar.%2C%20Kec.%20Pd.%20Aren%2C%20Kota%20Tangerang%20Selatan%2C%20Banten%2015226!5e0!3m2!1sid!2sid!4v1755014618796!5m2!1sid!2sid" 
+                width="100%" 
+                height="450" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+            
+              <div class="space-y-8">
+              <div class="contact-card bg-white p-8 rounded-2xl shadow-lg">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Informasi Kontak</h3>
+                
+                <div class="space-y-6">
+                  <div class="flex items-start">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fas fa-map-marker-alt text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="font-bold text-gray-800 mb-1">Lokasi</h4>
+                      <p class="text-gray-600">Tangerang Selatan, Banten</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fas fa-envelope text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="font-bold text-gray-800 mb-1">Email</h4>
+                      <p class="text-gray-600">mfadlanf08@gmail.com</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fab fa-instagram text-purple-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="font-bold text-gray-800 mb-1">Instagram</h4>
+                      <p class="text-gray-600">@mfadlanf_08</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fab fa-whatsapp text-yellow-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="font-bold text-gray-800 mb-1">WhatsApp</h4>
+                      <p class="text-gray-600">+62 895-3664-87819</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <footer class="py-12 bg-dark text-white">
+      <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h4 class="text-xl font-bold mb-4">Muhammad Fadlan</h4>
+            <p class="text-gray-400">Siswa SMKN 6 Tangerang Selatan jurusan Rekayasa Perangkat Lunak. Pengembang web kreatif dan solusi inovatif.</p>
+            <div class="flex space-x-4 mt-6">
+              <a href="#" class="text-gray-400 hover:text-white transition">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition">
+                <i class="fab fa-github"></i>
+              </a>
+
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-bold mb-4">Navigasi</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="#home" class="text-gray-400 hover:text-white transition">Home</a>
+              </li>
+              <li>
+                <a href="#friends" class="text-gray-400 hover:text-white transition">My Friends</a>
+              </li>
+              <li>
+                <a href="#about" class="text-gray-400 hover:text-white transition">About Me</a>
+              </li>
+              <li>
+                <a href="#contact" class="text-gray-400 hover:text-white transition">Contact</a>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="text-lg font-bold mb-4">Kontak</h4>
+            <ul class="space-y-2">
+              <li class="flex items-start">
+                <i class="fas fa-map-marker-alt mt-1 mr-3 text-gray-400"></i>
+                <span class="text-gray-400">Tangerang Selatan, Banten</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-envelope mt-1 mr-3 text-gray-400"></i>
+                <span class="text-gray-400">mfadlanf08@gmail.com</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fab fa-whatsapp mt-1 mr-3 text-gray-400"></i>
+                <span class="text-gray-400">+62 895-3664-87819</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
+          <p>© 2025 Muhammad Fadlan.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+
+      window.addEventListener("scroll", () => {
+        const navbar = document.getElementById("navbar");
+        if (window.scrollY > 20) {
+          navbar.classList.add("nav-scroll");
+        } else {
+          navbar.classList.remove("nav-scroll");
+        }
+      });
+
+      const menuBtn = document.getElementById("menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const bar1 = document.getElementById("bar1");
+      const bar2 = document.getElementById("bar2");
+      const bar3 = document.getElementById("bar3");
+      
+      let menuOpen = false;
+      
+      menuBtn.addEventListener("click", () => {
+        menuOpen = !menuOpen;
+        
+        if (menuOpen) {
+          mobileMenu.classList.remove("translate-y-full");
+          mobileMenu.classList.add("translate-y-0");
+          bar1.classList.add("rotate-45", "translate-y-2");
+          bar2.classList.add("opacity-0");
+          bar3.classList.add("-rotate-45", "-translate-y-2", "w-8");
+        } else {
+          mobileMenu.classList.add("translate-y-full");
+          mobileMenu.classList.remove("translate-y-0");
+          bar1.classList.remove("rotate-45", "translate-y-2");
+          bar2.classList.remove("opacity-0");
+          bar3.classList.remove("-rotate-45", "-translate-y-2", "w-8");
+        }
+      });
+      
+      document.querySelectorAll("#mobile-menu a").forEach(link => {
+        link.addEventListener("click", () => {
+          mobileMenu.classList.add("translate-y-full");
+          mobileMenu.classList.remove("translate-y-0");
+          bar1.classList.remove("rotate-45", "translate-y-2");
+          bar2.classList.remove("opacity-0");
+          bar3.classList.remove("-rotate-45", "-translate-y-2", "w-8");
+          menuOpen = false;
+        });
+      });
+  
+      gsap.from(".hero-image", {
+        duration: 1.5,
+        y: 100,
+        opacity: 0,
+        ease: "power3.out",
+      });
+
+      gsap.from("h1, p, button", {
+        duration: 1,
+        y: 30,
+        opacity: 0,
+        stagger: 0.2,
+        delay: 0.3,
+        ease: "power3.out",
+      });
+
+      var count = 200;
+      var defaults = {
+        origin: { y: 0.7 },
+      };
+
+      function fire(particleRatio, opts) {
+        confetti({
+          ...defaults,
+          ...opts,
+          particleCount: Math.floor(count * particleRatio),
+        });
+      }
+
+      fire(0.25, {
+        spread: 26,
+        startVelocity: 55,
+      });
+      fire(0.2, {
+        spread: 60,
+      });
+      fire(0.35, {
+        spread: 100,
+        decay: 0.91,
+        scalar: 0.8,
+      });
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 25,
+        decay: 0.92,
+        scalar: 1.2,
+      });
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 45,
+      });
+
+      VanillaTilt.init(document.querySelector("#profile-photo"), {
+        max: 15,
+        speed: 400,
+        glare: true,
+        "max-glare": 0.2,
+        scale: 1.05
+      });
+
+      function playVineBoomSound() {
+        const audio = new Audio('src/vine-boom.mp3');
+        audio.play();
+        
+        fire(0.25, {
+          spread: 26,
+          startVelocity: 55,
+        });
+        fire(0.2, {
+          spread: 60,
+        });
+        
+        gsap.to("#profile-photo", {
+          duration: 0.1,
+
+          yoyo: true,
+          repeat: 0,
+          ease: "power1.inOut"
+        });
+      }
+    </script>
+  </body>
+</html>
